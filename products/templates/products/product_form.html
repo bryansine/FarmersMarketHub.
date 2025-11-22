@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Product: {{ form.instance.name }}{% else %}Add New Product{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+    <h1 class="form-title">
+        {% if form.instance.pk %}Edit Listing{% else %}List New Produce{% endif %}
+    </h1>
+    
+    <p class="form-subtitle">
+        Fill out the details below to manage your inventory in the marketplace.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="field-block">
+                <label for="{{ field.id_for_label }}" class="field-label">
+                    {{ field.label }}
+                </label>
+                
+                {% if field.help_text %}
+                    <p class="field-help">{{ field.help_text }}</p>
+                {% endif %}
+
+                {{ field }}
+
+                {% for error in field.errors %}
+                    <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <a href="{% url 'users:farmer_dashboard' %}" class="cancel-link">
+                ← Cancel and Go Back
+            </a>
+
+            <button type="submit" class="submit-btn">
+                {% if form.instance.pk %}Update Listing{% else %}Create Listing{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Container */
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: 1px solid #d6f5d6;
+    }
+
+    /* Title */
+    .form-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1b7a1b;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .form-subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 25px;
+        font-size: 15px;
+    }
+
+    /* Field styling */
+    .field-block {
+        margin-bottom: 20px;
+    }
+
+    .field-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: #444;
+    }
+
+    .field-help {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 4px;
+    }
+
+    /* Input fields from Django */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="file"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s ease-in-out;
+        background: #fafafa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: #2e8b57;
+        box-shadow: 0 0 0 3px rgba(46,139,87,0.25);
+        background: #fff;
+    }
+
+    /* Error message */
+    .field-error {
+        margin-top: 4px;
+        color: #d93025;
+        font-size: 13px;
+    }
+
+    /* Actions */
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .cancel-link {
+        color: #555;
+        text-decoration: none;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .cancel-link:hover {
+        color: #000;
+    }
+
+    /* Submit button */
+    .submit-btn {
+        background: #2e8b57;
+        color: white;
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+    }
+
+    .submit-btn:hover {
+        background: #246c45;
+        transform: scale(1.03);
+    }
+</style>
+
+{% endblock %}

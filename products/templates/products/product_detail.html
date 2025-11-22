@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+
+<style>
+    .detail-wrapper {
+        max-width: 950px;
+        margin: 40px auto;
+        background: white;
+        border-radius: 14px;
+        padding: 30px;
+        border: 1px solid #d8e9d3;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.10);
+    }
+
+    .flex-container {
+        display: flex;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+
+    .img-container {
+        flex: 1 1 350px;
+    }
+
+    .info-container {
+        flex: 1 1 350px;
+    }
+
+    .product-image {
+        width: 100%;
+        max-height: 360px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .product-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #2d6a4f;
+        margin-bottom: 12px;
+    }
+
+    .product-meta p {
+        margin: 6px 0;
+        font-size: 15px;
+        color: #444;
+    }
+
+    .label {
+        font-weight: 700;
+        color: #1b4332;
+    }
+
+    .price-box {
+        margin-top: 15px;
+        background: #e9f7ef;
+        border: 1px solid #badbcc;
+        padding: 15px 18px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #2d6a4f;
+        display: inline-block;
+    }
+
+    .description-title {
+        margin-top: 25px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1b4332;
+    }
+
+    .description {
+        font-size: 16px;
+        color: #333;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 22px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        display: inline-block;
+        transition: 0.25s ease;
+    }
+
+    .btn-buy {
+        background: #2d6a4f;
+        color: white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .btn-buy:hover {
+        background: #1b4332;
+        transform: translateY(-2px);
+    }
+
+    .btn-edit {
+        background: #74c69d;
+        color: #083b2b;
+    }
+    .btn-edit:hover {
+        background: #52b788;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: #d62828;
+        color: white;
+    }
+    .btn-delete:hover {
+        background: #b71c1c;
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 30px;
+        color: #2d6a4f;
+        text-decoration: underline;
+        font-weight: 600;
+    }
+</style>
+
+
+<div class="detail-wrapper">
+
+    <div class="flex-container">
+
+        <!-- PRODUCT IMAGE -->
+        <div class="img-container">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% endif %}
+        </div>
+
+        <!-- INFO SECTION -->
+        <div class="info-container">
+
+            <h1 class="product-title">{{ product.name }}</h1>
+
+            <div class="product-meta">
+
+                <p>
+                    <span class="label">Category:</span>
+                    {% if product.category %}
+                        {{ product.category.name }}
+                    {% else %}
+                        Uncategorized
+                    {% endif %}
+                </p>
+
+                <p>
+                    <span class="label">Stock:</span> {{ product.stock_quantity }} available
+                </p>
+
+                <p>
+                    <span class="label">Seller:</span> {{ product.farmer.username }}
+                </p>
+
+                <p>
+                    <span class="label">Pickup Address:</span>
+                    {% if product.pickup_address %}
+                        {{ product.pickup_address }}
+                    {% else %}
+                        Not provided
+                    {% endif %}
+                </p>
+
+            </div>
+
+            <!-- PRICE BOX -->
+            <div class="price-box">
+                KES {{ product.price }}/{{ product.unit_of_measure }}
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- DESCRIPTION SECTION -->
+    <h3 class="description-title">Description</h3>
+    <p class="description">{{ product.description }}</p>
+
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+
+        <!-- Buyer Buttons -->
+        <a href="#" class="btn btn-buy">Buy Now</a>
+        <a href="#" class="btn btn-buy">Add to Cart</a>
+
+        <!-- Farmer Buttons -->
+        {% if user.is_authenticated and user == product.farmer %}
+            <a href="{% url 'products:update' product.pk %}" class="btn btn-edit">Edit</a>
+            <a href="{% url 'products:delete' product.pk %}" class="btn btn-delete">Delete</a>
+        {% endif %}
+    </div>
+
+    <!-- Back -->
+    <a href="{% url 'products:list' %}" class="back-link">← Back to Marketplace</a>
+
+</div>
+
+{% endblock %}

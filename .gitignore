@@ -1,0 +1,12 @@
+venv/
+*.pyc
+*.pyo
+__pycache__/
+db.sqlite3
+media/
+
+# Node.js
+node_modules/
+npm-debug.log
+
+*.env

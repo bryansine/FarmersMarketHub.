@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 60px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        border: 1px solid #ccecd1;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .auth-title {
+        text-align: center;
+        color: #2d7d46;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    .auth-container label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #355e3b;
+    }
+
+    .auth-container input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #c7d9ca;
+        margin-bottom: 18px;
+        font-size: 15px;
+    }
+
+    .auth-container input:focus {
+        border-color: #2d7d46;
+        outline: none;
+    }
+
+    .btn-auth {
+        width: 100%;
+        background-color: #2d7d46;
+        color: #fff;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        border: none;
+        transition: 0.2s;
+    }
+
+    .btn-auth:hover {
+        background-color: #25623a;
+    }
+
+    .auth-links {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .auth-links a {
+        color: #2d7d46;
+        text-decoration: none;
+    }
+
+    .auth-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="auth-container">
+    <h1 class="auth-title">Welcome Back</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+                <p style="color:#b53030; font-size:12px;">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+
+        <button type="submit" class="btn-auth">Login</button>
+    </form>
+
+    <div class="auth-links">
+        <p>Don't have an account? <a href="{% url 'users:register' %}">Register</a></p>
+    </div>
+</div>
+
+{% endblock %}

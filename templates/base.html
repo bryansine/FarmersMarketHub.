@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Farmers Hub — {% block title %}Marketplace{% endblock %}</title>
+
+    <style>
+        /* ----------------------------
+           GLOBAL RESET + BASE STYLES 
+        ----------------------------- */
+        body, h1, h2, h3, h4, h5, p, ul {
+            margin: 0;
+            padding: 0;
+        }
+        {% comment %} body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f7faf7;
+            color: #2d332d;
+            line-height: 1.6;
+        } {% endcomment %}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f2fcf5; /* light green background */
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #2d6a4f;
+        }
+        a:hover {
+            color: #1b4332;
+        }
+
+        /* ----------------------------
+           NAVBAR 
+        ----------------------------- */
+        header {
+            background: #2d6a4f;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        nav {
+            width: 90%;
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-left a, .nav-right a {
+            color: white;
+            margin: 0 12px;
+            font-weight: 600;
+            transition: opacity .2s ease;
+        }
+        .nav-left a:hover, .nav-right a:hover {
+            opacity: 0.8;
+        }
+
+        /* ----------------------------
+           MAIN CONTENT LAYOUT
+        ----------------------------- */
+        main {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+            min-height: 70vh;
+        }
+
+        /* ----------------------------
+           FOOTER
+        ----------------------------- */
+        footer {
+            background: #2d6a4f;
+            color: white;
+            opacity: 0.8;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <div class="nav-left">
+                <a href="{% url 'products:list' %}">Farmers Hub</a>
+            </div>
+
+            <div class="nav-right">
+                {% if user.is_authenticated %}
+                    {% if user.is_farmer %}
+                        <a href="{% url 'users:farmer_dashboard' %}">Dashboard</a>
+                    {% endif %}
+                    <a href="#">Cart</a>
+                    <form method="post" action="{% url 'users:logout' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="text-gray-700 hover:text-gray-900 font-medium">
+                            Logout ({{ user.username }})
+                        </button>
+                    </form>                {% else %}
+                    <a href="{% url 'users:login' %}">Login</a>
+                    <a href="{% url 'users:register' %}">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        &copy; 2025 Farmers Marketplace Hub
+    </footer>
+
+</body>
+</html>
