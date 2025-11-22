@@ -140,14 +140,12 @@
 
     <div class="flex-container">
 
-        <!-- PRODUCT IMAGE -->
         <div class="img-container">
             {% if product.image %}
                 <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
             {% endif %}
         </div>
 
-        <!-- INFO SECTION -->
         <div class="info-container">
 
             <h1 class="product-title">{{ product.name }}</h1>
@@ -182,7 +180,6 @@
 
             </div>
 
-            <!-- PRICE BOX -->
             <div class="price-box">
                 KES {{ product.price }}/{{ product.unit_of_measure }}
             </div>
@@ -191,19 +188,15 @@
     </div>
 
 
-    <!-- DESCRIPTION SECTION -->
     <h3 class="description-title">Description</h3>
     <p class="description">{{ product.description }}</p>
 
 
-    <!-- ACTION BUTTONS -->
     <div class="actions">
 
-        <!-- Buyer Buttons -->
         <a href="#" class="btn btn-buy">Buy Now</a>
         <a href="#" class="btn btn-buy">Add to Cart</a>
 
-        <!-- Farmer Buttons -->
         {% if user.is_authenticated and user == product.farmer %}
             <a href="{% url 'products:update' product.pk %}" class="btn btn-edit">Edit</a>
             <a href="{% url 'products:delete' product.pk %}" class="btn btn-delete">Delete</a>

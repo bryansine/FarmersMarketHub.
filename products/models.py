@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-# Get the custom User model defined in the 'users' app
 User = get_user_model()
 
 class ProductCategory(models.Model):
@@ -21,10 +20,8 @@ class ProductCategory(models.Model):
 
 class Product(models.Model):
     """
-    The main model for an agricultural product listed by a farmer.
     NOTE: GeoDjango fields are excluded to skip system dependency issues for now.
     """
-    # Product Details
     farmer = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
@@ -34,7 +31,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     category = models.ForeignKey(
         ProductCategory,
-        on_delete=models.SET_NULL, # Keep product if category is deleted
+        on_delete=models.SET_NULL,
         null=True
     )
     description = models.TextField(blank=True)
@@ -44,7 +41,6 @@ class Product(models.Model):
         null=True
     )
 
-    # Price and Stock Details
     price = models.DecimalField(
         max_digits=10, 
         decimal_places=2, 
@@ -57,15 +53,13 @@ class Product(models.Model):
     )
     stock_quantity = models.PositiveIntegerField(default=0)
     
-    # Placeholder for Location (We will update this to GeoDjango later)
-    # For now, we use a simple text field for the pickup address.
+    # Placeholder for Location 
     pickup_address = models.CharField(
         max_length=255, 
         blank=True, 
         help_text="The physical location for pickup."
     )
     
-    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

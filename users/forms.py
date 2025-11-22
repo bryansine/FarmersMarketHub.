@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .models import User
 
-# --- 1. User Registration Form ---
 class UserRegisterForm(UserCreationForm):
     """
     Form for registering a new user. Uses the Custom User model.
@@ -33,7 +32,7 @@ class UserRegisterForm(UserCreationForm):
         self.fields['username'].widget = forms.TextInput(attrs={'placeholder': 'Your unique username'})
 
         for name, field in self.fields.items():
-            if name != 'role':  # don't add the class to radioselect wrapper
+            if name != 'role':
                 field.widget.attrs.update({'class': 'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'})
             else:
                 field.widget.attrs.update({'class': 'mt-2'})
@@ -53,7 +52,6 @@ class UserRegisterForm(UserCreationForm):
         return user
 
 
-# --- 2. User Login Form ---
 class UserLoginForm(AuthenticationForm):
     """
     Standard Django form for user login, customized for appearance.
@@ -74,7 +72,6 @@ class UserLoginForm(AuthenticationForm):
         self.fields['password'].label = 'Password'
 
 
-# --- 3. User Profile Update Form ---
 class UserProfileForm(forms.ModelForm):
     """
     Basic profile form used in profile editing (exposes only editable fields).
@@ -90,7 +87,6 @@ class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Make email required in profile form too
         self.fields['email'].required = True
         for name, field in self.fields.items():
             field.widget.attrs.update({'class': 'w-full px-3 py-2 border rounded-lg'})

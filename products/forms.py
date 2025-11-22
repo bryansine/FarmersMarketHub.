@@ -7,7 +7,6 @@ class ProductForm(forms.ModelForm):
     """
     class Meta:
         model = Product
-        # Exclude 'farmer' and timestamps; form handles the rest
         fields = [
             'name',
             'description',

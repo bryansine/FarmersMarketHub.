@@ -15,7 +15,6 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ('category', 'unit_of_measure', 'created_at')
     search_fields = ('name', 'description', 'farmer__username', 'pickup_address')
-    # Use raw_id_fields for large ForeignKey fields if needed, but not necessary yet.
 
 
 @admin.register(ProductCategory)

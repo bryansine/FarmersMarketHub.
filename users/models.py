@@ -11,13 +11,11 @@ class User(AbstractUser):
         help_text='Designates whether this user should be treated as a farmer (seller).'
     )
 
-    # Keep a customer flag so roles are explicit and safe to reference
     is_customer = models.BooleanField(
         default=True,
         help_text='Designates whether this user should be treated as a customer (buyer).'
     )
 
-    # Contact
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
     def __str__(self):

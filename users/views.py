@@ -47,19 +47,13 @@ class CustomLoginView(LoginView):
         return reverse_lazy("products:list")
 
 
-# -----------------------------------------------------------
-# Logout View (Renamed correctly)
-# -----------------------------------------------------------
+
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy("products:list")
 
 
-# -----------------------------------------------------------
-# Farmer Dashboard View
-# -----------------------------------------------------------
 class FarmerDashboardView(FarmerRequiredMixin, TemplateView):
     template_name = "users/farmer_dashboard.html"
-
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
