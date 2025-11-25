@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -20,7 +20,7 @@ class ProductCategory(models.Model):
 
 class Product(models.Model):
     """
-    NOTE: GeoDjango fields are excluded to skip system dependency issues for now.
+    GeoDjango fields are excluded to skip system dependency issues for now.
     """
     farmer = models.ForeignKey(
         User, 
