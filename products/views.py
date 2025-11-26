@@ -1,18 +1,33 @@
-from .models import Product
+# from .models import Product
 from .forms import ProductForm
 from django.urls import reverse_lazy
 from users.views import FarmerRequiredMixin
+from .models import Product, ProductCategory
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 def product_list(request):
     """
-    Displays a list of all available products (the main marketplace page).
+    Displays all products, with optional category filtering.
     """
-    products = Product.objects.all().filter(stock_quantity__gt=0).order_by('name')
-    context = {'products': products}
+    category_slug = request.GET.get('category')
+
+    categories = ProductCategory.objects.all()
+
+    products = Product.objects.filter(stock_quantity__gt=0).order_by('name')
+
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+
+    context = {
+        'products': products,
+        'categories': categories,
+        'active_category': category_slug,
+    }
+
     return render(request, 'products/product_list.html', context)
+
 
 def product_detail(request, pk):
     """

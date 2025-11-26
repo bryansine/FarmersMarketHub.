@@ -3,104 +3,157 @@
 
 <style>
     .dashboard-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 25px;
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 20px;
     }
 
     .dash-title {
-        font-size: 28px;
+        font-size: 32px;
         font-weight: bold;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         text-align: center;
-        color: #333;
+        color: #2c7a3f;
     }
 
+    /* Stats Row */
     .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 20px;
+        display: flex;
+        justify-content: space-between;
         margin-bottom: 30px;
+        gap: 20px;
     }
 
     .stat-card {
-        background: #f7f7f7;
+        flex: 1;
+        background: #e8f7e9;
+        border-left: 6px solid #2c7a3f;
         padding: 20px;
         border-radius: 10px;
         text-align: center;
-        border: 1px solid #ddd;
-        transition: 0.2s;
-    }
-
-    .stat-card:hover {
-        background: #ffffff;
-        border-color: #bbb;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .stat-number {
-        font-size: 30px;
+        font-size: 28px;
         font-weight: bold;
-        color: #2d7d46;
+        color: #1b5e20;
     }
 
     .stat-label {
-        color: #666;
+        font-size: 14px;
+        color: #555;
         margin-top: 5px;
-        font-size: 15px;
     }
 
     .section-title {
-        font-size: 20px;
+        font-size: 24px;
+        margin-top: 30px;
+        margin-bottom: 15px;
         font-weight: bold;
-        margin: 25px 0 10px;
         color: #333;
     }
 
+    /* Product Grid */
     .product-list {
-        border: 1px solid #ddd;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        border: 1px solid #e2e2e2;
+        transition: 0.2s;
+    }
+
+    .product-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .product-img {
+        width: 100%;
+        height: 160px;
         border-radius: 10px;
-        padding: 20px;
-        background: #fafafa;
+        object-fit: cover;
+        background: #f3f3f3;
+        margin-bottom: 10px;
     }
 
-    .product-item {
-        padding: 12px 0;
-        border-bottom: 1px solid #e0e0e0;
+    .product-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c7a3f;
     }
 
-    .product-item:last-child {
-        border-bottom: none;
+    .product-meta {
+        font-size: 14px;
+        margin: 4px 0;
+        color: #444;
     }
 
+    /* Buttons */
     .btn {
         display: inline-block;
-        background: #2d7d46;
-        color: #fff;
-        padding: 10px 18px;
-        border-radius: 6px;
+        background: #2c7a3f;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 8px;
         text-decoration: none;
-        font-size: 15px;
         font-weight: bold;
+        margin-bottom: 15px;
         transition: 0.2s;
     }
 
     .btn:hover {
-        background: #25623a;
+        background: #255f33;
     }
+
+    .edit-btn,
+    .delete-btn {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-right: 8px;
+    }
+
+    .edit-btn {
+        background: #1976d2;
+        color: white;
+    }
+
+    .delete-btn {
+        background: #c62828;
+        color: white;
+    }
+
+    .edit-btn:hover { background: #0d47a1; }
+    .delete-btn:hover { background: #8e0000; }
 </style>
 
 <div class="dashboard-container">
+
     <h1 class="dash-title">Farmer Dashboard</h1>
 
+    <!-- Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-number">{{ total_products }}</div>
             <div class="stat-label">Products</div>
         </div>
+
         <div class="stat-card">
             <div class="stat-number">{{ total_stock }}</div>
             <div class="stat-label">Total Stock</div>
         </div>
+
         <div class="stat-card">
             <div class="stat-number">{{ total_views }}</div>
             <div class="stat-label">Product Views</div>
@@ -109,24 +162,35 @@
 
     <h2 class="section-title">Your Products</h2>
 
-
-    
+    <a href="{% url 'products:create' %}" class="btn">+ Add New Product</a>
 
     <div class="product-list">
         {% if products %}
             {% for product in products %}
-                <div class="product-item">
-                    <strong>{{ product.name }}</strong><br>
-                    Price: KES {{ product.price }} <br>
-                    {% comment %} Stock: {{ product.stock }} {% endcomment %}
-                    Stock: {{ product.stock_quantity }}
+                <div class="product-card">
 
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="product-img">
+                    {% else %}
+                        <img src="/static/no-image.jpg" class="product-img">
+                    {% endif %}
+
+                    <div class="product-name">{{ product.name }}</div>
+
+                    <div class="product-meta">KES {{ product.price }}</div>
+                    <div class="product-meta">Stock: {{ product.stock_quantity }}</div>
+                    <div class="product-meta">Category: {{ product.category }}</div>
+
+                    <!-- Action Buttons -->
+                    <a href="{% url 'products:update' product.pk %}" class="edit-btn">Edit</a>
+                    <a href="{% url 'products:delete' product.pk %}" class="delete-btn">Delete</a>
                 </div>
             {% endfor %}
         {% else %}
             <p>No products created yet.</p>
         {% endif %}
     </div>
+
 </div>
 
 {% endblock %}
