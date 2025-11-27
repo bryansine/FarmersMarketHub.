@@ -1,4 +1,3 @@
-# from .models import Product
 from .forms import ProductForm
 from django.urls import reverse_lazy
 from users.views import FarmerRequiredMixin
