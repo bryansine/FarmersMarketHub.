@@ -53,10 +53,6 @@ class ProductCreateView(FarmerRequiredMixin, CreateView):
 
 
 class ProductUpdateView(FarmerRequiredMixin, UpdateView):
-    """
-    Allows a farmer to update their existing product listing.
-    Requires user to be logged in and be the owner of the product.
-    """
     model = Product
     form_class = ProductForm
     template_name = 'products/product_form.html'
@@ -69,10 +65,6 @@ class ProductUpdateView(FarmerRequiredMixin, UpdateView):
 
 
 class ProductDeleteView(FarmerRequiredMixin, DeleteView):
-    """
-    Allows a farmer to delete their product listing.
-    Requires user to be logged in and be the owner of the product.
-    """
     model = Product
     template_name = 'products/product_confirm_delete.html'
     success_url = reverse_lazy('users:farmer_dashboard')
