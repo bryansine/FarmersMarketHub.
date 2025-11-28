@@ -7,9 +7,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 def product_list(request):
-    """
-    Displays all products, with optional category filtering.
-    """
     category_slug = request.GET.get('category')
 
     categories = ProductCategory.objects.all()
@@ -29,19 +26,12 @@ def product_list(request):
 
 
 def product_detail(request, pk):
-    """
-    Displays the detail page for a single product.
-    """
     product = get_object_or_404(Product, pk=pk)
     context = {'product': product}
     return render(request, 'products/product_detail.html', context)
 
 
 class ProductCreateView(FarmerRequiredMixin, CreateView):
-    """
-    Allows a farmer to create a new product listing.
-    Requires user to be logged in and be a farmer.
-    """
     model = Product
     form_class = ProductForm
     template_name = 'products/product_form.html'
