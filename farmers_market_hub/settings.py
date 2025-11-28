@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     
     'django.contrib.gis',
     'products.apps.ProductsConfig',
-    # 'orders.apps.OrdersConfig',
+    'cart.apps.CartConfig',
+    'orders.apps.OrdersConfig',
     # 'payments.apps.PaymentsConfig',
     # 'notifications.apps.NotificationsConfig',
     
