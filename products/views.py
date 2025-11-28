@@ -60,6 +60,5 @@ class ProductDeleteView(FarmerRequiredMixin, DeleteView):
     success_url = reverse_lazy('users:farmer_dashboard')
 
     def get_queryset(self):
-        """Ensures a farmer can only delete their own products."""
         queryset = super().get_queryset()
         return queryset.filter(farmer=self.request.user)
