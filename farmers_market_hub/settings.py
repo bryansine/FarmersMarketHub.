@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     
     'django.contrib.gis',
     'products.apps.ProductsConfig',
-    # 'orders.apps.OrdersConfig',
-    # 'cart.apps.CartConfig',
+    'cart.apps.CartConfig',
+    'orders.apps.OrdersConfig',
     # 'orders.apps.OrdersConfig',
     # 'payments.apps.PaymentsConfig',
     # 'notifications.apps.NotificationsConfig',
@@ -171,3 +171,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+# MPESA SETTINGS
+MPESA_ENVIRONMENT = 'sandbox'
+MPESA_CONSUMER_KEY = 'YOUR_SANDBOX_KEY'
+MPESA_CONSUMER_SECRET = 'YOUR_SANDBOX_SECRET'
+MPESA_SHORTCODE = '174379'
+MPESA_PASSKEY = 'YOUR_SANDBOX_PASSKEY'

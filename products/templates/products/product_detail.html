@@ -196,6 +196,8 @@
 
         <a href="#" class="btn btn-buy">Buy Now</a>
         <a href="#" class="btn btn-buy">Add to Cart</a>
+        <button onclick="addToCart({{ product.id }})">Add to Cart</button>
+
 
         {% if user.is_authenticated and user == product.farmer %}
             <a href="{% url 'products:update' product.pk %}" class="btn btn-edit">Edit</a>
@@ -203,9 +205,19 @@
         {% endif %}
     </div>
 
-    <!-- Back -->
     <a href="{% url 'products:list' %}" class="back-link">← Back to Marketplace</a>
 
+    <script>
+        function addToCart(productId) {
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                alert("Item added to cart!");
+            });
+        }
+        </script>
 </div>
-
 {% endblock %}

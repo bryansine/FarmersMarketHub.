@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:900px;margin:auto;padding:20px;">
+    <h2>My Cart</h2>
+
+    {% if items %}
+        <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+            <tr style="border-bottom:1px solid #ccc;font-weight:bold;">
+                <td>Product</td>
+                <td>Quantity</td>
+                <td>Total</td>
+                <td>Action</td>
+            </tr>
+
+            {% for item in items %}
+            <tr style="border-bottom:1px solid #eee;">
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>KES {{ item.line_total }}</td>
+                <td>
+                    <a href="{% url 'cart:remove' item.product.id %}" 
+                       style="color:red;text-decoration:none;">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h3 style="margin-top:20px;">Cart Total: <strong>KES {{ total }}</strong></h3>
+
+        <form action="{% url 'orders:checkout' %}" method="GET" style="margin-top:20px;">
+            <button type="submit" 
+                style="background:green;color:white;padding:10px 20px;border:none;border-radius:4px;">
+                Proceed to Checkout
+            </button>
+        </form>
+
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

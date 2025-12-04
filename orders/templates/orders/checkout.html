@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:700px;margin:auto;padding:20px;">
+    <h2>Checkout</h2>
+
+    <form method="POST" style="margin-top:20px;">
+        {% csrf_token %}
+
+        <label>Full Name</label><br>
+        <input type="text" name="full_name" required
+               style="width:100%;padding:10px;margin-bottom:15px;">
+
+        <label>Phone Number (e.g. 2547xxxxxxx)</label><br>
+        <input type="text" name="phone_number" required
+               style="width:100%;padding:10px;margin-bottom:15px;">
+
+        <label>Pickup Address (optional)</label><br>
+        <input type="text" name="pickup_address"
+               style="width:100%;padding:10px;margin-bottom:20px;">
+
+        <button type="submit" 
+                style="background:green;color:white;padding:12px 20px;border:none;border-radius:4px;">
+            Pay with M-Pesa (STK Push)
+        </button>
+    </form>
+</div>
+{% endblock %}
