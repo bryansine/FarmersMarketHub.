@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Custom Project Apps
     'users.apps.UsersConfig',
     
     'django.contrib.gis',
