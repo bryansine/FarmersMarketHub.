@@ -146,7 +146,7 @@
             {% endif %}
 
             <h3>
-                <a href="{% url 'products:detail' pk=product.pk %}">{{ product.name }}</a>
+                {% comment %} <a href="{% url 'products:detail' pk=product.pk %}">{{ product.name }}</a> {% endcomment %}
             </h3>
 
             <p><strong>Price:</strong> KES {{ product.price }}/{{ product.unit_of_measure }}</p>
