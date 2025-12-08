@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     # 'orders.apps.OrdersConfig',
     # 'payments.apps.PaymentsConfig',
     # 'notifications.apps.NotificationsConfig',
-    
+   
     # 3rd Party Apps
     # 'rest_framework',
     # 'widget_tweaks',
