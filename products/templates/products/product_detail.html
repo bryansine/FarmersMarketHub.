@@ -195,8 +195,16 @@
     <div class="actions">
 
         <a href="#" class="btn btn-buy">Buy Now</a>
-        <a href="#" class="btn btn-buy">Add to Cart</a>
+        {% comment %} <a href="#" class="btn btn-buy">Add to Cart</a> {% endcomment %}
         <button onclick="addToCart({{ product.id }})">Add to Cart</button>
+        <button type="button" onclick="addToCart({{ product.id }})">Add to Cart</button>
+
+        <form method="post" action="{% url 'cart:add' product.id %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn">Add to Cart</button>
+        </form>
+        
 
 
         {% if user.is_authenticated and user == product.farmer %}
@@ -208,16 +216,55 @@
     <a href="{% url 'products:list' %}" class="back-link">← Back to Marketplace</a>
 
     <script>
-        function addToCart(productId) {
+        /* Helper to read CSRF token from cookie */
+        function getCookie(name) {
+            const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+            return v ? v.pop() : '';
+        }
+        
+        function addToCart(productId, quantity = 1) {
+            const csrftoken = getCookie('csrftoken') || '{{ csrf_token }}';
+        
             fetch(`/cart/add/${productId}/`, {
                 method: 'POST',
-                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                credentials: 'same-origin', // IMPORTANT: send cookies (login + CSRF cookie)
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest', // marks request as AJAX
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ quantity: quantity })
             })
-            .then(resp => resp.json())
+            .then(async resp => {
+                // If response is JSON, parse it
+                const ct = resp.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                    return resp.json();
+                }
+                // fallback: return text
+                return resp.text();
+            })
             .then(data => {
-                alert("Item added to cart!");
+                // Successful AJAX response handling
+                if (data && data.ok) {
+                    alert(data.message || "Added to cart!");
+                    // Optionally update cart counter in UI here
+                } else {
+                    // If backend redirected or returned html, navigate there
+                    if (typeof data === 'string' && data.trim().startsWith('<')) {
+                        // a redirect/html was returned — reload page or go to cart
+                        window.location.href = "{% url 'cart:view_cart' %}";
+                    } else {
+                        alert("Added to cart (no JSON returned).");
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Add to cart error', err);
+                // Last resort: navigate to product list or view cart
+                window.location.href = "{% url 'cart:view_cart' %}";
             });
         }
-        </script>
+        </script>        
 </div>
 {% endblock %}

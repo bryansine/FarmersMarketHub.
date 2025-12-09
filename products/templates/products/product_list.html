@@ -5,7 +5,6 @@
 {% block content %}
 
 <style>
-    /* PAGE TITLE */
     .page-title {
         font-size: 32px;
         font-weight: 700;
@@ -14,7 +13,6 @@
         text-align: center;
     }
 
-    /* CTA BUTTON */
     .cta-sell {
         display: inline-block;
         background: #2d6a4f;
@@ -63,7 +61,6 @@
         color: white;
     }
 
-    /* PRODUCT GRID */
     .product-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -122,7 +119,6 @@
     </a>
 </div>
 
-<!-- CATEGORY FILTER BAR (Your requested position) -->
 <div class="category-bar">
     <a href="{% url 'products:list' %}"
        class="category-pill {% if not active_category %}active{% endif %}">
