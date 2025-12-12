@@ -58,18 +58,17 @@
     .remove-btn:hover {
         background: #c9302c;
     }
-    .checkout-btn {
+    .single-checkout-btn {
         display: inline-block;
-        margin-top: 25px;
         background: #28a745;
         color: white;
-        padding: 12px 25px;
-        border-radius: 8px;
-        font-size: 16px;
+        padding: 7px 15px;
+        border-radius: 6px;
         text-decoration: none;
-        font-weight: bold;
+        font-size: 14px;
+        margin-top: 10px;
     }
-    .checkout-btn:hover {
+    .single-checkout-btn:hover {
         opacity: 0.9;
     }
     .empty {
@@ -127,73 +126,26 @@
 
             <td><strong>KES {{ item.line_total }}</strong></td>
 
-            <td>
+            <td style="text-align:right;">
                 <a class="remove-btn" href="{% url 'cart:remove' item.id %}">Remove</a>
+
+                <br><br>
+                <a href="{% url 'orders:checkout_single' item.id %}"
+                   class="single-checkout-btn">
+                   Proceed to Checkout →
+                </a>
+                <br><br>
             </td>
         </tr>
         {% endfor %}
     </table>
-
-    <h3 style="margin-top:20px;">Total: <strong>KES {{ total }}</strong></h3>
-
-    <a href="{% url 'orders:checkout' %}" class="checkout-btn">
-        Proceed to Checkout →
-    </a>
 
     {% else %}
     <div class="empty">
         <h3>Your cart is empty</h3>
         <p>Browse products and add some items to your cart.</p>
     </div>
-    {% endif %}
+    {% endif %}L
 </div>
 
 {% endblock %}
-
-
-
-
-{% comment %} {% extends "base.html" %}
-{% block content %}
-
-<div style="max-width:900px;margin:auto;padding:20px;">
-    <h2>My Cart</h2>
-
-    {% if items %}
-    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
-        <tr style="border-bottom:1px solid #ccc;font-weight:bold;">
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Total</th>
-            <th></th>
-        </tr>
-
-        {% for item in items %}
-        <tr style="border-bottom:1px solid #eee;">
-            <td>{{ item.product.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>KES {{ item.line_total }}</td>
-            <td>
-                <a href="{% url 'cart:remove' item.id %}" style="color:red;">Remove</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <h3>Total: KES {{ total }}</h3>
-
-    <a href="{% url 'orders:checkout' %}" 
-       style="display:inline-block;margin-top:20px;background:green;color:white;padding:10px 20px;border-radius:6px;">
-       Proceed to Checkout
-    </a>
-
-    {% else %}
-    <p>Your cart is empty.</p>
-    {% endif %}
-</div>
-
-{% endblock %}
-
-
- {% endcomment %}
-

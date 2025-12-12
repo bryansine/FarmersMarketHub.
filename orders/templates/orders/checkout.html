@@ -6,6 +6,12 @@
     <form method="POST" style="margin-top:20px;">
         {% csrf_token %}
 
+        {% if single_item %}
+        <p><strong>Paying for:</strong> {{ item.product.name }} (x{{ item.quantity }})</p>
+        <p><strong>Total:</strong> KES {{ total }}</p>
+        {% endif %}
+
+
         <label>Full Name</label><br>
         <input type="text" name="full_name" required
                style="width:100%;padding:10px;margin-bottom:15px;">

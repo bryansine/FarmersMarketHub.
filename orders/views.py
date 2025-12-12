@@ -35,7 +35,6 @@ def create_order_from_cart(request, form_data):
         products = Product.objects.filter(id__in=ids)
         total = sum(products.get(id=int(pid)).price * qty for pid, qty in cart.items())
 
-    # CREATE ORDER
     with transaction.atomic():
         order = Order.objects.create(
             user=request.user if request.user.is_authenticated else None,
@@ -107,6 +106,73 @@ def checkout(request):
         return redirect('orders:order_detail', order.id)
 
     return render(request, 'orders/checkout.html')
+
+
+def checkout_single_item(request, item_id):
+    """Checkout ONE item from cart (Option A workflow)."""
+
+    if not request.user.is_authenticated:
+        messages.error(request, "Please log in to checkout.")
+        return redirect("users:login")
+
+    cart_item = get_object_or_404(
+        CartItem,
+        id=item_id,
+        cart__user=request.user
+    )
+
+    product = cart_item.product
+    qty = cart_item.quantity
+    line_total = cart_item.line_total
+
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        phone_number = request.POST.get('phone_number')
+        pickup_address = request.POST.get('pickup_address', '')
+
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                full_name=full_name,
+                phone_number=phone_number,
+                pickup_address=pickup_address,
+                total=line_total,
+            )
+
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                price=product.price,
+                quantity=qty,
+                line_total=line_total,
+            )
+
+            cart_item.delete()
+
+        callback_url = request.build_absolute_uri(reverse('orders:mpesa_callback'))
+
+        resp = stk_push(
+            amount=float(line_total),
+            phone=phone_number,
+            account_reference=str(order.id),
+            callback_url=callback_url,
+        )
+
+        if resp.get('CheckoutRequestID'):
+            order.mpesa_checkout_request_id = resp['CheckoutRequestID']
+            order.mpesa_response = resp
+            order.save()
+            messages.info(request, 'M-Pesa STK sent. Enter PIN on your phone.')
+        else:
+            messages.error(request, 'Payment initiation failed.')
+
+        return redirect('orders:order_detail', order.id)
+
+    return render(request, 'orders/checkout.html', {
+        'single_item': True,
+        'item': cart_item,
+        'total': line_total,
+    })
 
 
 @csrf_exempt
