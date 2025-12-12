@@ -6,20 +6,15 @@ from .models import Cart, CartItem
 
 
 def _get_session_cart(request):
-    """Return dict mapping product_id -> qty stored in session"""
     return request.session.setdefault('cart', {})
 
 
 def _get_or_create_user_cart(user):
-    """Return the logged-in user's cart (create if missing)"""
     cart, created = Cart.objects.get_or_create(user=user)
     return cart
 
 
 def _merge_session_cart_to_user(request):
-    """
-    Convert items saved in session into DB cart items when a user logs in.
-    """
     session_cart = request.session.get('cart', {})
     if not session_cart:
         return
@@ -35,50 +30,46 @@ def _merge_session_cart_to_user(request):
             cart=user_cart,
             product=product
         )
-        if not created:
-            item.quantity += qty
-        else:
-            item.quantity = qty
+        item.quantity = item.quantity + qty if not created else qty
         item.save()
 
-    # Clear session cart after merging
     request.session['cart'] = {}
     request.session.modified = True
 
+
+
 def add_to_cart(request, product_id):
+    """Add product to cart. Redirect to cart OR checkout depending on button."""
     product = get_object_or_404(Product, pk=product_id)
     qty = int(request.POST.get('quantity', 1))
+    buy_now = request.POST.get('buy_now') == "1"
 
-    # 🔹 If user logged in: merge session cart once  
+    # Logged-in user
     if request.user.is_authenticated:
         _merge_session_cart_to_user(request)
         cart = _get_or_create_user_cart(request.user)
 
-        obj, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        if not created:
-            obj.quantity += qty
-        else:
-            obj.quantity = qty
-        obj.save()
+        item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        item.quantity = item.quantity + qty if not created else qty
+        item.save()
 
     else:
-        # 🔹 GUEST CART in session
+        # Guest session cart
         cart = _get_session_cart(request)
         cart[str(product_id)] = cart.get(str(product_id), 0) + qty
         request.session.modified = True
 
-    # Support AJAX
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({'ok': True, 'message': 'Added to cart'})
+    # 🔥 Buy Now → go straight to checkout
+    if buy_now:
+        return redirect('orders:checkout')
 
-    return redirect('products:list')
+    # Add to Cart → go to Cart page
+    return redirect('cart:view_cart')
+
 
 
 def remove_from_cart(request, item_id):
-    """
-    item_id is the CartItem ID (for authenticated users)
-    OR product_id (for session cart)
-    """
+    """Remove cart item for logged in user OR session."""
     if request.user.is_authenticated:
         CartItem.objects.filter(id=item_id, cart__user=request.user).delete()
     else:
@@ -93,7 +84,7 @@ def view_cart(request):
     items = []
     total = 0
 
-    # Authenticated user → DB cart
+    # Logged-in users → DB
     if request.user.is_authenticated:
         _merge_session_cart_to_user(request)
         cart = _get_or_create_user_cart(request.user)
@@ -108,8 +99,8 @@ def view_cart(request):
             })
             total += item.line_total
 
+    # Guest users → Session
     else:
-        # Guest user → session cart
         cart = _get_session_cart(request)
         product_ids = [int(pid) for pid in cart.keys()]
         products = Product.objects.filter(id__in=product_ids)
@@ -121,7 +112,7 @@ def view_cart(request):
                 continue
             line_total = qty * product.price
             items.append({
-                'id': pid,                     # session uses pid
+                'id': pid,
                 'product': product,
                 'quantity': qty,
                 'line_total': line_total,
@@ -132,3 +123,22 @@ def view_cart(request):
         'items': items,
         'total': total
     })
+
+
+def update_quantity(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+
+    action = request.POST.get('action')
+
+    if action == "increase":
+        item.quantity += 1
+        item.save()
+
+    elif action == "decrease":
+        if item.quantity > 1:
+            item.quantity -= 1
+            item.save()
+        else:
+            item.delete()
+
+    return redirect('cart:view_cart')

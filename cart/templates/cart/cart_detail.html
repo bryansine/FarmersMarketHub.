@@ -1,43 +1,199 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+    .cart-container {
+        max-width: 950px;
+        margin: auto;
+        padding: 25px;
+    }
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .cart-table th, .cart-table td {
+        padding: 15px;
+        text-align: left;
+    }
+    .cart-table th {
+        background: #f7f7f7;
+        font-weight: bold;
+        border-bottom: 2px solid #eee;
+    }
+    .cart-table tr {
+        border-bottom: 1px solid #eee;
+    }
+    .cart-product {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .cart-product img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+    }
+    .qty-btn {
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        background: #f7f7f7;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .remove-btn {
+        color: white;
+        background: #d9534f;
+        padding: 7px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    .remove-btn:hover {
+        background: #c9302c;
+    }
+    .checkout-btn {
+        display: inline-block;
+        margin-top: 25px;
+        background: #28a745;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 16px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .checkout-btn:hover {
+        opacity: 0.9;
+    }
+    .empty {
+        padding: 40px;
+        text-align: center;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+</style>
+
+<div class="cart-container">
+    <h2>🛒 My Cart</h2>
+
+    {% if items %}
+    <table class="cart-table">
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+
+        {% for item in items %}
+        <tr>
+            <td>
+                <div class="cart-product">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% endif %}
+                    <div>
+                        <strong>{{ item.product.name }}</strong><br>
+                        <small>KES {{ item.product.price }}</small>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <form method="POST" action="{% url 'cart:update' item.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="decrease">
+                        <button type="submit" class="qty-btn">-</button>
+                    </form>
+
+                    <strong>{{ item.quantity }}</strong>
+
+                    <form method="POST" action="{% url 'cart:update' item.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="increase">
+                        <button type="submit" class="qty-btn">+</button>
+                    </form>
+                </div>
+            </td>
+
+            <td><strong>KES {{ item.line_total }}</strong></td>
+
+            <td>
+                <a class="remove-btn" href="{% url 'cart:remove' item.id %}">Remove</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3 style="margin-top:20px;">Total: <strong>KES {{ total }}</strong></h3>
+
+    <a href="{% url 'orders:checkout' %}" class="checkout-btn">
+        Proceed to Checkout →
+    </a>
+
+    {% else %}
+    <div class="empty">
+        <h3>Your cart is empty</h3>
+        <p>Browse products and add some items to your cart.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+
+
+
+{% comment %} {% extends "base.html" %}
+{% block content %}
+
 <div style="max-width:900px;margin:auto;padding:20px;">
     <h2>My Cart</h2>
 
     {% if items %}
-        <table style="width:100%;border-collapse:collapse;margin-top:20px;">
-            <tr style="border-bottom:1px solid #ccc;font-weight:bold;">
-            <tr style="border-bottom:1px solid #ccc;font-weight:bold;">
+    <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+        <tr style="border-bottom:1px solid #ccc;font-weight:bold;">
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
 
-                <td>Product</td>
-                <td>Quantity</td>
-                <td>Total</td>
-                <td>Action</td>
-            </tr>
+        {% for item in items %}
+        <tr style="border-bottom:1px solid #eee;">
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>KES {{ item.line_total }}</td>
+            <td>
+                <a href="{% url 'cart:remove' item.id %}" style="color:red;">Remove</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-            {% for item in items %}
-            <tr style="border-bottom:1px solid #eee;">
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>KES {{ item.line_total }}</td>
-                <td>
-                    <a href="{% url 'cart:remove' item.product.id %}" 
-                       style="color:red;text-decoration:none;">Remove</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+    <h3>Total: KES {{ total }}</h3>
 
-        <h3 style="margin-top:20px;">Cart Total: <strong>KES {{ total }}</strong></h3>
-
-        <form action="{% url 'orders:checkout' %}" method="GET" style="margin-top:20px;">
-            <button type="submit" 
-                style="background:green;color:white;padding:10px 20px;border:none;border-radius:4px;">
-                Proceed to Checkout
-            </button>
-        </form>
+    <a href="{% url 'orders:checkout' %}" 
+       style="display:inline-block;margin-top:20px;background:green;color:white;padding:10px 20px;border-radius:6px;">
+       Proceed to Checkout
+    </a>
 
     {% else %}
-        <p>Your cart is empty.</p>
+    <p>Your cart is empty.</p>
     {% endif %}
 </div>
+
 {% endblock %}
+
+
+ {% endcomment %}
+
