@@ -1,14 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
+import json
 from django.db import transaction
 from django.contrib import messages
 from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
 from .models import Order, OrderItem
 from cart.models import CartItem, Cart
 from products.models import Product
 from .mpesa import stk_push
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 def order_detail(request, pk):
