@@ -28,7 +28,7 @@ def stk_push(amount, phone, account_reference, callback_url, description="Paymen
         "Timestamp": timestamp,
         "TransactionType": "CustomerPayBillOnline",
         "Amount": str(amount),
-        "PartyA": phone,  # msisdn sending the money
+        "PartyA": phone,
         "PartyB": settings.MPESA_SHORTCODE,
         "PhoneNumber": phone,
         "CallBackURL": callback_url,
