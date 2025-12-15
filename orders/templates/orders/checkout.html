@@ -1,33 +1,111 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="max-width:700px;margin:auto;padding:20px;">
-    <h2>Checkout</h2>
+<style>
+    .checkout-container {
+        max-width: 750px;
+        margin: auto;
+        padding: 25px;
+    }
+    .checkout-box {
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+    .summary {
+        margin-bottom: 25px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+    .summary h3 {
+        margin-bottom: 10px;
+    }
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 15px;
+    }
+    .summary-total {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 12px;
+    }
+    label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 18px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+    .pay-btn {
+        width: 100%;
+        background: #28a745;
+        color: white;
+        padding: 14px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .pay-btn:hover {
+        opacity: 0.9;
+    }
+</style>
 
-    <form method="POST" style="margin-top:20px;">
-        {% csrf_token %}
+<div class="checkout-container">
+    <h2>🧾 Checkout</h2>
 
-        {% if single_item %}
-        <p><strong>Paying for:</strong> {{ item.product.name }} (x{{ item.quantity }})</p>
-        <p><strong>Total:</strong> KES {{ total }}</p>
-        {% endif %}
+    <div class="checkout-box">
+        <div class="summary">
+            <h3>Order Summary</h3>
 
+            {% if single_item %}
+                <div class="summary-item">
+                    <span>{{ item.product.name }} (x{{ item.quantity }})</span>
+                    <span>KES {{ item.line_total }}</span>
+                </div>
 
-        <label>Full Name</label><br>
-        <input type="text" name="full_name" required
-               style="width:100%;padding:10px;margin-bottom:15px;">
+                <div class="summary-total">
+                    Total: KES {{ total }}
+                </div>
 
-        <label>Phone Number (e.g. 2547xxxxxxx)</label><br>
-        <input type="text" name="phone_number" required
-               style="width:100%;padding:10px;margin-bottom:15px;">
+            {% else %}
+                {% for ci in items %}
+                    <div class="summary-item">
+                        <span>{{ ci.product.name }} (x{{ ci.quantity }})</span>
+                        <span>KES {{ ci.line_total }}</span>
+                    </div>
+                {% endfor %}
 
-        <label>Pickup Address (optional)</label><br>
-        <input type="text" name="pickup_address"
-               style="width:100%;padding:10px;margin-bottom:20px;">
+                <div class="summary-total">
+                    Total: KES {{ total }}
+                </div>
+            {% endif %}
+        </div>
 
-        <button type="submit" 
-                style="background:green;color:white;padding:12px 20px;border:none;border-radius:4px;">
-            Pay with M-Pesa (STK Push)
-        </button>
-    </form>
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Phone Number (e.g. 2547XXXXXXXX)</label>
+            <input type="text" name="phone_number" required>
+
+            <label>Pickup Address (optional)</label>
+            <input type="text" name="pickup_address">
+
+            <button type="submit" class="pay-btn">
+                Pay with M-Pesa (STK Push)
+            </button>
+        </form>
+    </div>
 </div>
 {% endblock %}

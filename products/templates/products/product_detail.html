@@ -196,7 +196,6 @@
 
     <div class="actions">
 
-        <!-- BUY NOW (redirects to cart then checkout) -->
         <form action="{% url 'cart:add' product.id %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
@@ -205,7 +204,6 @@
         </form>
         
 
-        <!-- ADD TO CART -->
         <form action="{% url 'cart:add' product.id %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
