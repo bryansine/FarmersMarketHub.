@@ -204,7 +204,6 @@
         </form>
         
 
-        {% comment %} <!-- ADD TO CART --> {% endcomment %}
         <form action="{% url 'cart:add' product.id %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="quantity" value="1">
