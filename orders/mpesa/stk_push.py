@@ -1,21 +1,19 @@
+import json
 import requests
 from django.conf import settings
+
 from .auth import get_access_token
-from .utils import mpesa_timestamp, stk_password
+from .utils import mpesa_timestamp, stk_password, normalize_phone
 
 
 def stk_push(amount, phone, account_reference, callback_url):
     access_token = get_access_token()
-    timestamp = mpesa_timestamp()
+    phone = normalize_phone(phone)
 
     payload = {
         "BusinessShortCode": settings.MPESA_SHORTCODE,
-        "Password": stk_password(
-            settings.MPESA_SHORTCODE,
-            settings.MPESA_PASSKEY,
-            timestamp
-        ),
-        "Timestamp": timestamp,
+        "Password": stk_password(),
+        "Timestamp": mpesa_timestamp(),
         "TransactionType": "CustomerPayBillOnline",
         "Amount": int(amount),
         "PartyA": phone,
@@ -23,18 +21,19 @@ def stk_push(amount, phone, account_reference, callback_url):
         "PhoneNumber": phone,
         "CallBackURL": callback_url,
         "AccountReference": account_reference,
-        "TransactionDesc": "FarmersHub Order Payment"
+        "TransactionDesc": f"Order {account_reference}",
     }
 
     headers = {
         "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
 
-    if settings.MPESA_ENV == "sandbox":
-        url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
-    else:
-        url = "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    url = (
+        "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+        if settings.MPESA_ENV == "sandbox"
+        else "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+    )
 
-    response = requests.post(url, json=payload, headers=headers, timeout=15)
+    response = requests.post(url, headers=headers, data=json.dumps(payload), timeout=30)
     return response.json()

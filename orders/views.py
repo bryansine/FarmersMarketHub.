@@ -8,8 +8,103 @@ from .models import Order, OrderItem
 from cart.models import CartItem, Cart
 from products.models import Product
 # from .mpesa import stk_push
-from .mpesa.stk_push import stk_push
+# from .mpesa.stk_push import stk_push
+from orders.mpesa.stk_push import stk_push
+
 from django.shortcuts import render, redirect, get_object_or_404
+
+# from .mpesa.utils import normalize_phone
+
+from orders.mpesa.stk_push import stk_push
+
+
+
+import json
+import logging
+import requests
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+
+from .models import Order
+# from orders.mpesa.utils import (
+#     get_mpesa_access_token,
+#     generate_password,
+#     get_timestamp,
+# )
+
+logger = logging.getLogger(__name__)
+
+
+@login_required
+def initiate_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.payment_status not in ["Pending", "Failed"]:
+        messages.error(request, "Payment already processed.")
+        return redirect("orders:order_detail", order_id=order.id)
+
+    access_token = get_mpesa_access_token()
+    if not access_token:
+        messages.error(request, "Failed to get M-Pesa access token.")
+        return redirect("orders:order_detail", order_id=order.id)
+
+    timestamp = get_timestamp()
+    password = generate_password()
+
+    phone_number = str(order.phone_number).strip()
+    if phone_number.startswith("0"):
+        phone_number = "254" + phone_number[1:]
+
+    payload = {
+        "BusinessShortCode": settings.MPESA_SHORTCODE,
+        "Password": password,
+        "Timestamp": timestamp,
+        "TransactionType": "CustomerPayBillOnline",
+        "Amount": int(order.total_price),
+        "PartyA": phone_number,
+        "PartyB": settings.MPESA_SHORTCODE,
+        "PhoneNumber": phone_number,
+        "CallBackURL": settings.MPESA_CALLBACK_URL,
+        "AccountReference": f"ORDER-{order.id}",
+        "TransactionDesc": f"Payment for Order {order.id}",
+    }
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+
+    stk_url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
+
+    response = requests.post(
+        stk_url,
+        headers=headers,
+        data=json.dumps(payload),
+        timeout=30,
+    )
+
+    logger.warning("STK STATUS: %s", response.status_code)
+    logger.warning("STK BODY: %s", response.text)
+
+    response_data = response.json()
+
+    if response.status_code == 200 and response_data.get("ResponseCode") == "0":
+        order.mpesa_checkout_id = response_data["CheckoutRequestID"]
+        order.payment_status = "Payment Initiated"
+        order.save()
+        return redirect("orders:payment_waiting", order_id=order.id)
+
+    messages.error(
+        request,
+        response_data.get("errorMessage", "Payment initiation failed."),
+    )
+    order.payment_status = "Failed"
+    order.save()
+
+    return redirect("orders:order_detail", order_id=order.id)
 
 
 def order_detail(request, pk):
@@ -109,9 +204,8 @@ def checkout(request):
     return render(request, 'orders/checkout.html')
 
 
-def checkout_single_item(request, item_id):
-    """Checkout ONE item from cart (Option A workflow)."""
 
+def checkout_single_item(request, item_id):
     if not request.user.is_authenticated:
         messages.error(request, "Please log in to checkout.")
         return redirect("users:login")
@@ -122,21 +216,17 @@ def checkout_single_item(request, item_id):
         cart__user=request.user
     )
 
-    product = cart_item.product
-    qty = cart_item.quantity
     line_total = int(cart_item.line_total)
 
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
-        phone_number = request.POST.get('phone_number')
+        raw_phone = request.POST.get('phone_number')
         pickup_address = request.POST.get('pickup_address', '')
 
-        phone_number = phone_number.strip()
-        if phone_number.startswith('0'):
-            phone_number = '254' + phone_number[1:]
-
-        if not phone_number.startswith('254'):
-            messages.error(request, "Invalid phone number format.")
+        try:
+            phone_number = normalize_phone(raw_phone)
+        except ValueError:
+            messages.error(request, "Enter a valid Safaricom phone number.")
             return redirect(request.path)
 
         with transaction.atomic():
@@ -146,13 +236,14 @@ def checkout_single_item(request, item_id):
                 phone_number=phone_number,
                 pickup_address=pickup_address,
                 total=line_total,
+                status='pending',
             )
 
             OrderItem.objects.create(
                 order=order,
-                product=product,
-                price=product.price,
-                quantity=qty,
+                product=cart_item.product,
+                price=cart_item.product.price,
+                quantity=cart_item.quantity,
                 line_total=line_total,
             )
 
@@ -178,7 +269,7 @@ def checkout_single_item(request, item_id):
 
             messages.success(
                 request,
-                'M-Pesa prompt sent. Enter your PIN to complete payment.'
+                "M-Pesa prompt sent. Enter your PIN."
             )
         else:
             order.status = 'failed'
@@ -187,7 +278,7 @@ def checkout_single_item(request, item_id):
 
             messages.error(
                 request,
-                'Failed to initiate M-Pesa payment. Try again.'
+                "Payment could not be initiated."
             )
 
         return redirect('orders:order_detail', order.id)
@@ -197,6 +288,7 @@ def checkout_single_item(request, item_id):
         'item': cart_item,
         'total': line_total,
     })
+
 
 @csrf_exempt
 def mpesa_callback(request):
