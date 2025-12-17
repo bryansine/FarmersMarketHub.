@@ -7,7 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Order, OrderItem
 from cart.models import CartItem, Cart
 from products.models import Product
-from .mpesa import stk_push
+# from .mpesa import stk_push
+from .mpesa.stk_push import stk_push
 from django.shortcuts import render, redirect, get_object_or_404
 
 
@@ -123,12 +124,20 @@ def checkout_single_item(request, item_id):
 
     product = cart_item.product
     qty = cart_item.quantity
-    line_total = cart_item.line_total
+    line_total = int(cart_item.line_total)
 
     if request.method == 'POST':
         full_name = request.POST.get('full_name')
         phone_number = request.POST.get('phone_number')
         pickup_address = request.POST.get('pickup_address', '')
+
+        phone_number = phone_number.strip()
+        if phone_number.startswith('0'):
+            phone_number = '254' + phone_number[1:]
+
+        if not phone_number.startswith('254'):
+            messages.error(request, "Invalid phone number format.")
+            return redirect(request.path)
 
         with transaction.atomic():
             order = Order.objects.create(
@@ -147,24 +156,39 @@ def checkout_single_item(request, item_id):
                 line_total=line_total,
             )
 
-            cart_item.delete()
-
-        callback_url = request.build_absolute_uri(reverse('orders:mpesa_callback'))
+        callback_url = request.build_absolute_uri(
+            reverse('orders:mpesa_callback')
+        )
 
         resp = stk_push(
-            amount=float(line_total),
+            amount=line_total,
             phone=phone_number,
-            account_reference=str(order.id),
+            account_reference=f"ORDER-{order.id}",
             callback_url=callback_url,
         )
 
-        if resp.get('CheckoutRequestID'):
+        print("MPESA RESPONSE:", resp)
+
+        if resp and resp.get('CheckoutRequestID'):
             order.mpesa_checkout_request_id = resp['CheckoutRequestID']
             order.mpesa_response = resp
             order.save()
-            messages.info(request, 'M-Pesa STK sent. Enter PIN on your phone.')
+
+            cart_item.delete()
+
+            messages.success(
+                request,
+                'M-Pesa prompt sent. Enter your PIN to complete payment.'
+            )
         else:
-            messages.error(request, 'Payment initiation failed.')
+            order.status = 'failed'
+            order.mpesa_response = resp
+            order.save()
+
+            messages.error(
+                request,
+                'Failed to initiate M-Pesa payment. Try again.'
+            )
 
         return redirect('orders:order_detail', order.id)
 
@@ -174,21 +198,31 @@ def checkout_single_item(request, item_id):
         'total': line_total,
     })
 
-
 @csrf_exempt
 def mpesa_callback(request):
-    data = json.loads(request.body.decode('utf-8'))
+    data = json.loads(request.body.decode("utf-8"))
 
-    callback = data.get('Body', {}).get('stkCallback', {})
-    checkout_id = callback.get('CheckoutRequestID')
-    result_code = callback.get('ResultCode')
+    callback = data.get("Body", {}).get("stkCallback", {})
+    checkout_id = callback.get("CheckoutRequestID")
+    result_code = callback.get("ResultCode")
 
-    order = Order.objects.filter(mpesa_checkout_request_id=checkout_id).first()
+    order = Order.objects.filter(
+        mpesa_checkout_request_id=checkout_id
+    ).first()
+
     if not order:
         return JsonResponse({"ResultCode": 1})
 
     order.mpesa_response = callback
-    order.status = 'paid' if result_code == 0 else 'failed'
+
+    if result_code == 0:
+        order.status = "paid"
+    else:
+        order.status = "failed"
+
     order.save()
 
-    return JsonResponse({"ResultCode": 0, "ResultDesc": "Accepted"})
+    return JsonResponse({
+        "ResultCode": 0,
+        "ResultDesc": "Accepted"
+    })
