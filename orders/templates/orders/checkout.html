@@ -106,12 +106,6 @@
                 Pay with M-Pesa (STK Push)
             </button>
         </form>
-        <form method="post" action="{% url 'orders:initiate_payment' order.id %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-success">
-                Pay with M-Pesa
-            </button>
-        </form>
     </div>
 </div>
 {% endblock %}

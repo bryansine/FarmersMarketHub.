@@ -66,7 +66,7 @@ class FarmerDashboardView(FarmerRequiredMixin, TemplateView):
         context["products"] = products
         context["total_products"] = products.count()
         context["total_stock"] = sum(p.stock_quantity for p in products)
-        context["total_views"] = 0  # placeholder until you add the views field
+        context["total_views"] = 0  # placeholder 
         return context
 
 

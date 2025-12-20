@@ -8,33 +8,24 @@ def mpesa_timestamp():
 
 
 def stk_password():
-    data = f"{settings.MPESA_SHORTCODE}{settings.MPESA_PASSKEY}{mpesa_timestamp()}"
-    encoded = base64.b64encode(data.encode())
-    return encoded.decode("utf-8")
+    data = (
+        f"{settings.MPESA_SHORTCODE}"
+        f"{settings.MPESA_PASSKEY}"
+        f"{mpesa_timestamp()}"
+    )
+    return base64.b64encode(data.encode()).decode()
 
 
-def normalize_phone(phone: str) -> str:
-    """
-    Accepts:
-    - 0712345678
-    - 712345678
-    - 254712345678
+def normalize_phone(phone):
+    phone = phone.strip()
 
-    Returns:
-    - 254712345678
-    """
-    phone = phone.strip().replace(" ", "")
+    if phone.startswith("0"):
+        phone = "254" + phone[1:]
 
     if phone.startswith("+"):
         phone = phone[1:]
 
-    if phone.startswith("0"):
-        return "254" + phone[1:]
+    if not phone.startswith("254"):
+        raise ValueError("Invalid Safaricom phone number")
 
-    if phone.startswith("7") and len(phone) == 9:
-        return "254" + phone
-
-    if phone.startswith("254"):
-        return phone
-
-    raise ValueError("Invalid phone number format")
+    return phone

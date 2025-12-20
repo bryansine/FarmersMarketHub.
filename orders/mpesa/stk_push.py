@@ -1,13 +1,12 @@
 import json
 import requests
 from django.conf import settings
-
-from .auth import get_access_token
+from .auth import get_mpesa_access_token
 from .utils import mpesa_timestamp, stk_password, normalize_phone
 
 
 def stk_push(amount, phone, account_reference, callback_url):
-    access_token = get_access_token()
+    access_token = get_mpesa_access_token()
     phone = normalize_phone(phone)
 
     payload = {
@@ -35,5 +34,11 @@ def stk_push(amount, phone, account_reference, callback_url):
         else "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
     )
 
-    response = requests.post(url, headers=headers, data=json.dumps(payload), timeout=30)
+    response = requests.post(
+        url,
+        headers=headers,
+        data=json.dumps(payload),
+        timeout=30
+    )
+
     return response.json()
