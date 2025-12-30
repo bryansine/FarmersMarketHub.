@@ -192,9 +192,6 @@ def checkout_single_item(request, item_id):
 
 @csrf_exempt
 def mpesa_callback(request):
-    """
-    Receives M-Pesa STK callback from Safaricom
-    """
     try:
         data = json.loads(request.body.decode("utf-8"))
     except Exception:
