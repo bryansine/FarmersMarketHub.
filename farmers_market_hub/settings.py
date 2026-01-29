@@ -27,7 +27,8 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.ngrok-free.dev', '.ngrok-free.app']
 
 
 INSTALLED_APPS = [
@@ -44,8 +45,9 @@ INSTALLED_APPS = [
     'products.apps.ProductsConfig',
     'cart.apps.CartConfig',
     'orders.apps.OrdersConfig',
+    'daraja.apps.DarajaConfig',
     # 'orders.apps.OrdersConfig',
-    # 'payments.apps.PaymentsConfig',
+    # 'payment`s.apps.PaymentsConfig',
     # 'notifications.apps.NotificationsConfig',
    
     # 3rd Party Apps
@@ -170,12 +172,14 @@ AUTH_USER_MODEL = 'users.User'
 
 # MPESA SETTINGS
 
+
+
+
+# MPESA SETTINGS
 MPESA_ENV = config("MPESA_ENV", default="sandbox")
 MPESA_CONSUMER_KEY = config("MPESA_CONSUMER_KEY")
 MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET")
 MPESA_SHORTCODE = config("MPESA_SHORTCODE")
 MPESA_PASSKEY = config("MPESA_PASSKEY")
-MPESA_CALLBACK_URL = config("MPESA_CALLBACK_URL")
-
-
-
+MPESA_CALLBACK_URL = config("MPESA_CALLBACK_URL").strip("'").strip('"')
+# MPESA_CALLBACK_URL = 'https://electrosurgical-illegible-eleanore.ngrok-free.dev/orders/mpesa/callback/'
