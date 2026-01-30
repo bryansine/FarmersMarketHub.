@@ -2,9 +2,6 @@ from django import forms
 from .models import Product
 
 class ProductForm(forms.ModelForm):
-    """
-    Form for creating and updating a Product instance.
-    """
     class Meta:
         model = Product
         fields = [
