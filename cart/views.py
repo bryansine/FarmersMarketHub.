@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from products.models import Product
 from .models import Cart, CartItem
+from products.models import Product
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
 
 
 def _get_session_cart(request):
@@ -44,7 +44,6 @@ def add_to_cart(request, product_id):
     qty = int(request.POST.get('quantity', 1))
     buy_now = request.POST.get('buy_now') == "1"
 
-    # Logged-in user
     if request.user.is_authenticated:
         _merge_session_cart_to_user(request)
         cart = _get_or_create_user_cart(request.user)
@@ -54,16 +53,13 @@ def add_to_cart(request, product_id):
         item.save()
 
     else:
-        # Guest session cart
         cart = _get_session_cart(request)
         cart[str(product_id)] = cart.get(str(product_id), 0) + qty
         request.session.modified = True
 
-    # 🔥 Buy Now → go straight to checkout
     if buy_now:
         return redirect('orders:checkout')
 
-    # Add to Cart → go to Cart page
     return redirect('cart:view_cart')
 
 
@@ -84,7 +80,6 @@ def view_cart(request):
     items = []
     total = 0
 
-    # Logged-in users → DB
     if request.user.is_authenticated:
         _merge_session_cart_to_user(request)
         cart = _get_or_create_user_cart(request.user)
@@ -99,7 +94,6 @@ def view_cart(request):
             })
             total += item.line_total
 
-    # Guest users → Session
     else:
         cart = _get_session_cart(request)
         product_ids = [int(pid) for pid in cart.keys()]

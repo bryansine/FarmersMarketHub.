@@ -43,7 +43,6 @@ class MpesaClient:
         passkey = settings.MPESA_PASSKEY
         shortcode = settings.MPESA_SHORTCODE
         
-        # Generate password
         password_str = f"{shortcode}{passkey}{timestamp}"
         password = base64.b64encode(password_str.encode()).decode()
 
@@ -57,7 +56,7 @@ class MpesaClient:
             "Password": password,
             "Timestamp": timestamp,
             "TransactionType": "CustomerPayBillOnline",
-            "Amount": int(amount), # M-Pesa only accepts integers
+            "Amount": int(amount),
             "PartyA": format_phone_number(phone_number),
             "PartyB": shortcode,
             "PhoneNumber": format_phone_number(phone_number),
