@@ -3,10 +3,6 @@ from .models import User
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 class UserRegisterForm(UserCreationForm):
-    """
-    Form for registering a new user. Uses the Custom User model.
-    Adds a simple role radio (customer | farmer).
-    """
     ROLE_CHOICES = (
         ('customer', 'Customer (Buying Produce)'),
         ('farmer', 'Farmer (Selling Produce)'),
@@ -53,9 +49,6 @@ class UserRegisterForm(UserCreationForm):
 
 
 class UserLoginForm(AuthenticationForm):
-    """
-    Standard Django form for user login, customized for appearance.
-    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -73,9 +66,6 @@ class UserLoginForm(AuthenticationForm):
 
 
 class UserProfileForm(forms.ModelForm):
-    """
-    Basic profile form used in profile editing (exposes only editable fields).
-    """
     class Meta:
         model = User
         fields = ('username', 'email', 'phone_number')

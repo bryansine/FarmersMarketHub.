@@ -7,11 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-
 class FarmerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """
-    Restricts access to users who are authenticated AND have is_farmer=True.
-    """
     login_url = reverse_lazy('users:login')
 
     def test_func(self):
@@ -23,8 +19,6 @@ class FarmerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return redirect('products:list')
         return super().handle_no_permission()
 
-
-
 class RegisterView(CreateView):
     model = User
     form_class = UserRegisterForm
@@ -34,7 +28,6 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         messages.success(self.request, "Your account has been created. You can now log in.")
         return super().form_valid(form)
-
 
 class CustomLoginView(LoginView):
     authentication_form = UserLoginForm
@@ -47,11 +40,8 @@ class CustomLoginView(LoginView):
         return reverse_lazy("products:list")
 
 
-
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy("products:list")
-
-
 
 class FarmerDashboardView(FarmerRequiredMixin, TemplateView):
     template_name = "users/farmer_dashboard.html"
@@ -66,10 +56,8 @@ class FarmerDashboardView(FarmerRequiredMixin, TemplateView):
         context["products"] = products
         context["total_products"] = products.count()
         context["total_stock"] = sum(p.stock_quantity for p in products)
-        context["total_views"] = 0  # placeholder for future
+        context["total_views"] = 0
         return context
-
-
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = User
