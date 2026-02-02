@@ -6,6 +6,9 @@ from .forms import UserRegisterForm, UserLoginForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+#from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+
+
 
 class FarmerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     login_url = reverse_lazy('users:login')
