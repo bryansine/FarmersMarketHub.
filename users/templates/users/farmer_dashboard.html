@@ -142,7 +142,6 @@
 
     <h1 class="dash-title">Farmer Dashboard</h1>
 
-    <!-- Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-number">{{ total_products }}</div>
@@ -181,7 +180,6 @@
                     <div class="product-meta">Stock: {{ product.stock_quantity }}</div>
                     <div class="product-meta">Category: {{ product.category }}</div>
 
-                    <!-- Action Buttons -->
                     <a href="{% url 'products:update' product.pk %}" class="edit-btn">Edit</a>
                     <a href="{% url 'products:delete' product.pk %}" class="delete-btn">Delete</a>
                 </div>
