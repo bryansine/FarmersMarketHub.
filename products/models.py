@@ -53,7 +53,6 @@ class Product(models.Model):
     )
     stock_quantity = models.PositiveIntegerField(default=0)
     
-    # Placeholder for Location 
     pickup_address = models.CharField(
         max_length=255, 
         blank=True, 
